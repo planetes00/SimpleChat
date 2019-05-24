@@ -84,11 +84,12 @@ class ChatThread extends Thread{
 	public void sendmsg(String msg){
 		int start = msg.indexOf(" ") +1;
 		int end = msg.indexOf(" ", start);
+        Object obj;
 		if(end != -1){
 			String to = msg.substring(start, end);
 			String msg2 = msg.substring(end+1);
             synchronized(hm){
-			Object obj = hm.get(to);
+			obj = hm.get(to);
             }
 			if(obj != null){
 				PrintWriter pw = (PrintWriter)obj;
