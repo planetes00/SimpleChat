@@ -56,13 +56,12 @@ class ChatThread extends Thread{
 	public void run(){
 		try{
 			String line = null;
-			//클라이언트가 떠드는거 보고 그거 해
-			while((line = br.readLine()) != null){//
+			while((line = br.readLine()) != null){
 				if(line.equals("/quit"))
 					break;
                 //유저리스트 출력하라고 하면 출력해준다.
                 if (line.equals("/userlist")) send_userlist();
-                //만약에 여기서 금지어가 걸리면 안된다고 꽤액한다.
+                //만약에 여기서 금지어가 걸리면 안된다고 알려준다.
                 else if(isForbidden(line)) youNo();
 				else if(line.indexOf("/to ") == 0){
 					sendmsg(line);
@@ -88,7 +87,9 @@ class ChatThread extends Thread{
 		if(end != -1){
 			String to = msg.substring(start, end);
 			String msg2 = msg.substring(end+1);
-			Object obj = hm.get(to);//여기도 싱크해줘야 하는데 까먹은듯 읽기는 동시에 해도 상관이 없어서.
+            synchronized(hm){
+			Object obj = hm.get(to);
+            }
 			if(obj != null){
 				PrintWriter pw = (PrintWriter)obj;
 				pw.println(id + " whisphered. : " + msg2);
@@ -104,13 +105,14 @@ class ChatThread extends Thread{
                 Map.Entry entry = (Map.Entry)iterator.next();
                 String key = (String)entry.getKey();
 				PrintWriter pw = (PrintWriter)entry.getValue();
-                //나만 빼고 메세지 보내면 되겄쥬??
+                //pw에 메세지를 보내기 전에 key 값을 확인하여 본인에게 메세지를 보내지 않는다.
 				if(!this.id.equals(key))pw.println(msg);
 				pw.flush();
 			}
 		}
 	} // broadcast
-    //유저 리스트 뽑는 물건입니다. 해쉬맵 한바퀴 돌아서 유저 이름을 어레이 리스트에 저장한뒤 유저 스레드에 저장된 this.id를 이용해 유저에게 어레이리스트를 죽 보여줘서 목적달성!
+    //유저 리스트 뽑는 함수입니다. 해쉬맵 한바퀴 돌아서 유저 이름을 어레이 리스트에 저장한뒤
+    //유저 스레드에 저장된 this.id를 이용해 유저pw에 어레이리스트를 모두 출력합니다.
     public void send_userlist(){
         ArrayList<String> names=new ArrayList<>();
         Object obj;
@@ -119,9 +121,8 @@ class ChatThread extends Thread{
         synchronized(hm){
             Set set = hm.entrySet();
             Iterator iterator = set.iterator();
-            
+            //돌립니다.
             while(iterator.hasNext()){
-                //돌립니다.
                 Map.Entry entry = (Map.Entry)iterator.next();
                 //키를 받아옵니다.
                 String key = (String)entry.getKey();
@@ -132,30 +133,30 @@ class ChatThread extends Thread{
             //해쉬맵에서 이 유저의 pw를 건저온다.
             obj = hm.get(this.id);
         }
-    //알려준다. 꽤액
+    //출력
     PrintWriter pw = (PrintWriter)obj;
     for(String msg: names) pw.println(msg);
     pw.println("number of chatter: "+num);
     pw.flush();
         
-    }//senduserlist
-    //과제와 퀴즈를 잘보는 모범생들을 거르자
+    }
+    //유저가 입력한 line에 금지어가 있는지 검사하여 있으면 true, 없으면 flase를 출력합니다.
     public boolean isForbidden(String line){
-        //뭐.. 딱히 효율적으로 하라고 하시진 않으셨잖아요?
+        //senduserlist에 들어있는 단어가 line에 들어있는지 검사합니다.
         for(String nono: this.Forbidden){
             if(line.contains(nono)) return true;
         }
         return false;
     }
-    //너 모범생 하고 경고를 준다.
+    //해당 유저에게 경고메세지를 출력
     public void youNo(){
-        //유저의 pw를 겟또!
+        //해당 유저의 pw를 건진다.
         Object obj;
         synchronized(hm){
             obj = hm.get(this.id);
         }
         PrintWriter pw = (PrintWriter)obj;
-        //너 모범생
+        //경고메세지를 출력한다.
         pw.println("WARNING: You have used banned words.");
         pw.flush();
     }

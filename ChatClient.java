@@ -15,13 +15,8 @@ public class ChatClient {
 		boolean endflag = false;
 		try{
 			sock = new Socket(args[1], 10001);
-			//socket in/out, input from keyboard
 			pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
 			br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			//키보드->버퍼리더에서 일어들어욤 인풋 스트림리더-키보드로 부터 읽어들어오는 
-			//systemin-read a byte//buffered reader-read a line-set String
-			//inputStrieamReader is executed like a input changer->hdmi/rgb 
-			//InputSt... r1=new InputSt...();was on here,but go short
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			
 			// send username.
@@ -29,11 +24,11 @@ public class ChatClient {
 			pw.flush();
 			InputThread it = new InputThread(sock, br);
 			it.start();
-            String line = null;//라인은 키보드로부터 오네용??
-			while((line = keyboard.readLine()) != null){//무한반복하는 while이 핵심인데...
+            String line = null;
+			while((line = keyboard.readLine()) != null){
 				pw.println(line);
 				pw.flush();
-				if(line.equals("/quit")){//파개조건 
+				if(line.equals("/quit")){
 					endflag = true;
 					break;
 				}
