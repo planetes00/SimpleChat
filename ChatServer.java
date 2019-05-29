@@ -141,7 +141,7 @@ class ChatThread extends Thread{
     pw.flush();
         
     }
-    //유저가 입력한 line에 금지어가 있는지 검사하여 있으면 true, 없으면 flase를 출력합니다.
+    //유저가 입력한 line에 금지어가 있는지 검사하여 있으면 true, 없으면 false를 출력합니다.
     public boolean isForbidden(String line){
         //senduserlist에 들어있는 단어가 line에 들어있는지 검사합니다.
         for(String nono: this.Forbidden){
